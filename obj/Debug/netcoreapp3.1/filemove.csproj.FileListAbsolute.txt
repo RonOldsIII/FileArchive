@@ -1,0 +1,13 @@
+C:\Code\filemove\bin\Debug\netcoreapp3.1\filemove.exe
+C:\Code\filemove\bin\Debug\netcoreapp3.1\filemove.deps.json
+C:\Code\filemove\bin\Debug\netcoreapp3.1\filemove.runtimeconfig.json
+C:\Code\filemove\bin\Debug\netcoreapp3.1\filemove.runtimeconfig.dev.json
+C:\Code\filemove\bin\Debug\netcoreapp3.1\filemove.dll
+C:\Code\filemove\bin\Debug\netcoreapp3.1\filemove.pdb
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.csprojAssemblyReference.cache
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.csproj.CoreCompileInputs.cache
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.AssemblyInfoInputs.cache
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.AssemblyInfo.cs
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.dll
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.pdb
+C:\Code\filemove\obj\Debug\netcoreapp3.1\filemove.genruntimeconfig.cache
