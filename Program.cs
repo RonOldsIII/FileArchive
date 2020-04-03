@@ -5,7 +5,7 @@ using FileMove;
 
 class Test
 {
-    public static void Main()
+    public static void cat()
     {
         try
         {
