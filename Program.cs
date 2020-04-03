@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
+using FileMove;
 
 class Test
 {
@@ -7,11 +9,20 @@ class Test
     {
         try
         {
-            string FolderToArchive = "c:\\test";
-            string ArchiveFolderName = "archive";
-            // Only get files that begin with the letter "c".
-            FolderArchiver(FolderToArchive, ArchiveFolderName);     // moves all folders from {FolderToArchive} to {FolderToArchive}\{ArchiveFolderName}\{yyyyMMdd}\
-            FileArchiver(FolderToArchive,ArchiveFolderName);        // moves all files from  {FolderToArchive} to {FolderToArchive}\{ArchiveFolderName}\{yyyyMMdd}\
+
+            using (var db = new FileArchiveContext())
+            {
+                FileArchive tmp = db.FileArchives.Find(1);
+                var tests = db.FileArchives;
+                foreach (FileArchive test in tests)
+                {
+
+                    FolderArchiver(test);     // moves all folders from {archive.FolderPath} to {archive.FolderPath}\{archive.ArchiveName}\{yyyyMMdd}\
+                    FileArchiver(test);        // moves all files from  {archive.FolderPath} to {archive.FolderPath}\{archive.ArchiveName}\{yyyyMMdd}\
+
+                }
+
+            }
 
         }
         catch (Exception e)
@@ -21,54 +32,106 @@ class Test
     }
     public static void FolderValidator(string path, string[] dirs)
     {
-
-        if (Array.Exists(dirs, element => element == path))
+        try
         {
-            Console.WriteLine("Folder " + path + " already exists.");
-        }
-        else
-        {
-            Directory.CreateDirectory(path);
-            Console.WriteLine("Folder Created " + path);
-        }
-    }
-
-    public static void FolderArchiver(string FolderToArchive, string ArchiveFolderName)
-    {
-        string[] dirs = Directory.GetDirectories(FolderToArchive);
-        FolderValidator(FolderToArchive + @"\" + ArchiveFolderName, dirs);  // validates archive folder with current date exists, if not creates it
-        foreach (string dir in dirs)
-        {
-            if (dir != FolderToArchive + @"\" + ArchiveFolderName)
+            if (Array.Exists(dirs, element => element == path))
             {
-                Console.WriteLine(dir);
-                Console.WriteLine(DateTime.Now.ToString("yyyyMMdd"));
-                //Directory.Move(@"C:\Test\test", @"c:\test\archive\test" );
-                Console.WriteLine(FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(FolderToArchive + @"\", ""));
-                string[] FolderCheck = Directory.GetDirectories(FolderToArchive + @"\" + ArchiveFolderName + @"\");
-                FolderValidator(FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd"), FolderCheck);
-                Console.WriteLine("Moving " + dir + " to " + FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(FolderToArchive + @"\", ""));
-                Directory.Move(dir, FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(FolderToArchive + @"\", ""));
-                Console.WriteLine(dir);
+                //console.writeLine("Folder " + path + " already exists.");
+            }
+            else
+            {
+                Directory.CreateDirectory(path);
+                //console.writeLine("Folder Created " + path);
             }
         }
-    }
-    public static void FileArchiver(string FolderToArchive, string ArchiveFolderName)
-    {
-        string[] dirs = Directory.GetFiles(FolderToArchive);
-        foreach (string dir in dirs)
+
+        catch (Exception e)
         {
-
-                Console.WriteLine(dir);
-                Console.WriteLine(DateTime.Now.ToString("yyyyMMdd"));
-                //Directory.Move(@"C:\Test\test", @"c:\test\archive\test" );
-                Console.WriteLine(FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(FolderToArchive + @"\", ""));
-                string[] FolderCheck = Directory.GetDirectories(FolderToArchive + @"\" + ArchiveFolderName + @"\");
-                FolderValidator(FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd"), FolderCheck);
-                Console.WriteLine("Moving " + dir + " to " + FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(FolderToArchive + @"\", ""));
-                Directory.Move(dir, FolderToArchive + @"\" + ArchiveFolderName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(FolderToArchive + @"\", ""));
-                Console.WriteLine(dir);
-
+            Console.WriteLine("The process failed: {0}", e.ToString());
         }
     }
+
+    public static void FolderArchiver(FileArchive archive)
+    {
+        try
+        {
+            string[] dirs = Directory.GetDirectories(archive.FolderPath);
+            FolderValidator(archive.FolderPath + @"\" + archive.ArchiveName, dirs);  // validates archive folder with current date exists, if not creates it
+            foreach (string dir in dirs)
+            {
+                if (dir != archive.FolderPath + @"\" + archive.ArchiveName)
+                {
+                    //console.writeLine(dir);
+                    //console.writeLine(DateTime.Now.ToString("yyyyMMdd"));
+                    //Directory.Move(@"C:\Test\test", @"c:\test\archive\test" );
+                    ////console.writeLine(archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", ""));
+                    string[] FolderCheck = Directory.GetDirectories(archive.FolderPath + @"\" + archive.ArchiveName + @"\");
+                    FolderValidator(archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd"), FolderCheck);
+                    //console.writeLine("Moving " + dir + " to " + archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", ""));
+                    Directory.Move(dir, archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", ""));
+                    ArchiveLog log = new ArchiveLog();
+                    log.OriginalPath = dir;
+                    log.DestinationPath = archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", "");
+                    log.ArchiveDate = DateTime.Now;
+                    log.FileArchiveId = archive.FileArchiveId;
+                    WriteLog(log);
+                    //console.writeLine(dir);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("The process failed: {0}", e.ToString());
+        }
+
+
+    }
+    public static void FileArchiver(FileArchive archive)
+    {
+        try
+        {
+            string[] dirs = Directory.GetFiles(archive.FolderPath);
+            foreach (string dir in dirs)
+            {
+
+                //console.writeLine(dir);
+                //console.writeLine(DateTime.Now.ToString("yyyyMMdd"));
+                //Directory.Move(@"C:\Test\test", @"c:\test\archive\test" );
+                //console.writeLine(archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", ""));
+                string[] FolderCheck = Directory.GetDirectories(archive.FolderPath + @"\" + archive.ArchiveName + @"\");
+                FolderValidator(archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd"), FolderCheck);
+                //console.writeLine("Moving " + dir + " to " + archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", ""));
+                Directory.Move(dir, archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", ""));
+                ArchiveLog log = new ArchiveLog();
+                log.OriginalPath = dir;
+                log.DestinationPath = archive.FolderPath + @"\" + archive.ArchiveName + @"\" + DateTime.Now.ToString("yyyyMMdd") + @"\" + dir.Replace(archive.FolderPath + @"\", "");
+                log.ArchiveDate = DateTime.Now;
+                log.FileArchiveId = archive.FileArchiveId;
+                WriteLog(log);
+                //console.writeLine(dir);
+
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("The process failed: {0}", e.ToString());
+        }
+
+    }
+    public static void WriteLog(ArchiveLog log)
+    {
+        try
+        {
+            using (var db = new FileArchiveContext())
+            {
+                db.Add(log);
+                db.SaveChanges();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("The process failed: {0}", e.ToString());
+        }
+    }
+
 }
